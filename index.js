@@ -3,21 +3,23 @@ import express from 'express'
 import puppeteer from 'puppeteer'
 import dappeteer from 'dappeteer'
 
+//TODO: Add test-case scenarios using Jest
+
 async function main() {
   const browser = await dappeteer.launch(puppeteer, { headless: false, slowMo: 20, })
   const metamask = await dappeteer.getMetamask(browser)
   
-  // create or import an account
-  // await metamask.createAccount()
-  await metamask.importAccount('census enact air time view resource resource same romance sheriff ten section')
+  // import an account
+  // Step 1 CHANGE: Add your 12-word mnemonic for an account that already has Kovan ETH
+  await metamask.importAccount('Add your 12-word mnemonic here')
   
-  // you can change the network if you want
+  // Step 2 CHANGE: Change network as necessary
   await metamask.switchNetwork('kovan')
   
   // go to a dapp and do something that prompts MetaMask to confirm a transaction
   const page = await browser.newPage()
 
-  //Check for errors
+  //TODO: Check for errors
   page.on('error', (err) => {
     console.log('error: ', err)
   })
@@ -29,26 +31,15 @@ async function main() {
       console.log(`${i}: ${msg.args[i]}`)
   })
 
+  // Step 3 CHANGE: Change url as necessary (can use localhost)
   await page.goto('https://tokenstudio.polymath.network/ticker')
   await page.waitForSelector('#name')
   await page.type('#name', 'SC')
   await page.type('#email', 'shannonajclarke@gmail.com')
-  
-  // const inputElement = await page.$('input[type=checkbox]');
-  // await inputElement.check();
-  // await page.click('#acceptTerms')
-
-  // await page.focus('input[type="checkbox"]')
-  // await page.focus('input[type=checkbox]')
-  // await page.focus('.bx--checkbox')
   await page.tap('#acceptTerms')
   await page.tap('#acceptPrivacy')
-
-  
   await page.click('button[type="submit"]')
-  // await page.waitForNavigation()
-  // let options=[]
-  
+
   //Sign transaction
   const EXTENSION_ID ='nkbihfbeogaeaoehlefnkodbefgpgknn'
   const EXTENSION_URL =`chrome-extension://${EXTENSION_ID}/popup.html`
@@ -70,7 +61,9 @@ async function main() {
   //Fill out ticker reservation form
   await page.bringToFront()
   await page.waitForSelector('#ticker')
-  await page.type('#ticker', 'SHA9')
+
+  // Step 4 CHANGE: Change the Ticker Symbol for each test
+  await page.type('#ticker', '')
   await page.type('#name', 'ShannonToken')
   await page.click('button[type="submit"]')
 
@@ -79,14 +72,10 @@ async function main() {
   await page.waitForSelector('.bx--modal-container')
   await page.hover('.bx--btn--primary')
   await page.click('.bx--btn--primary')
-  // const modal = page.$('.bx--modal-container')
-  // modal.bringToFront()
-  // await page.focus('.bx--modal-container')
   await page.waitFor(2000);
   
+  // Gas and Gaslimit configured to ensure successful transaction
   await metamask.confirmTransaction({gas:15, gasLimit:400130})
-  // const acceptButton2 = await metamask.$('button')
-  // await acceptButton2.click()
   await page.bringToFront()
   
   await page.waitForSelector('.confirm-email-form')
@@ -94,7 +83,9 @@ async function main() {
   await page.hover('button[type="submit"]')
   await page.click('button[type="submit"]')
 
-  console.log('finished')
+  //This output is not necessary but is helpful for visual confirmation that the test has been completed
+  //TODO: Remove this when test case scenarios have been added
+  console.log('Test finished')
 }
 
 main()
