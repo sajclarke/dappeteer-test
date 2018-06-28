@@ -7,6 +7,9 @@
     "start": "babel-node index.js --presets es2015,stage-2",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": ">=8"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {

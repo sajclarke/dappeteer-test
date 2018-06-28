@@ -1,10 +1,9 @@
 language: node_js
 sudo: required
-cache: yarn
 node_js:
-  - 9
   - 8
 addons:
   chrome: stable
 script:
+- npm i
 - npm start
