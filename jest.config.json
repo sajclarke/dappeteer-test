@@ -1,0 +1,15 @@
+{
+  "reporters": [
+    "default",
+    [
+      "./node_modules/jest-html-reporter/dist/main.js",
+      {
+        "pageTitle": "Test Suite Report",
+        "outputPath": "test-report.html",
+        "includeFailureMsg": true,
+        "includeConsoleLog": true,
+        "sort": "titleAsc"
+      }
+    ]
+  ]
+}

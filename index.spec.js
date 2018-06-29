@@ -1,16 +1,25 @@
-
-// import express from 'express'
-// import puppeteer from 'puppeteer'
-// import dappeteer from 'dappeteer'
+'use strict';
 
 const puppeteer = require('puppeteer')
 const dappeteer = require('dappeteer')
+var path = require('path')
+var nodemailer = require('nodemailer')
+var mg = require('nodemailer-mailgun-transport')
+// const ABSPATH = path.dirname(process.mainModule.filename)
+
+var auth = {
+  auth: {
+    api_key: 'key-d3ff66e5968f8ef79bc95bd5d2c6e3fb',
+    domain: 'carepoint.co',
+  },
+}
+
+var nodemailerMailgun = nodemailer.createTransport(mg(auth))
 
 const isDebugging = () => {
   const debugging_mode = {
     headless: true,
-    slowMo: 2,
-    devtools: true,
+    slowMo: 2
   }
   return process.env.NODE_ENV === 'development' ? debugging_mode : {}
 }
@@ -58,8 +67,10 @@ describe('on page load', () => {
 
 })
 
-describe('sign transaction', () => {
-  test('sign metamask', async () => {
+
+describe('signup page', () => {
+
+  test('sign metamask transaction', async () => {
     // jest.setTimeout(30000)
 
     await page.goto('https://tokenstudio.polymath.network/ticker')
@@ -87,11 +98,7 @@ describe('sign transaction', () => {
     metamaskPage.close()
   })
 
-
-})
-
-describe('login form', () => {
-  test('should display login page', async () => {
+  test('should display signup page', async () => {
     await page.waitForSelector('.pui-h1')
     // const text = await page.evaluate(() => document.body.innerText)
     // expect(text).toContain('Create Your Account')
@@ -104,15 +111,16 @@ describe('login form', () => {
     await page.waitForSelector('#name')
     await page.type('#name', 'user')
     await page.type('#email', 'user')
-    await page.tap('#acceptTerms')
-    await page.tap('#acceptPrivacy')
-    await page.click('button[type=submit]')
+    // await page.tap('#acceptTerms')
+    // await page.tap('#acceptPrivacy')
+    await page.tap('#name')
+    // await page.tap('button[type=submit]')
 
     try {
       await page.waitForSelector('#email-error-msg')
       // you need to try catch the error with async await
       await page.evaluate(
-        () => document.getElementById('#email-error-msg')[0], // no need for async
+        () => document.getElementById('#email-error-msg'), // no need for async
       )
     } catch (errorMessage) {
       console.log('errorMessage', errorMessage)
@@ -123,29 +131,9 @@ describe('login form', () => {
   })
 
   test(
-    'login form works correctly',
+    'signup form works correctly',
     async () => {
-      // const firstNameEl = await page.$('[data-testid="firstName"]')
-      // const lastNameEl = await page.$('[data-testid="lastName"]')
-      // const emailEl = await page.$('[data-testid="email"]')
-      // const passwordEl = await page.$('[data-testid="password"]')
-      // const submitEl = await page.$('[data-testid="submit"]')
-
-      // await firstNameEl.tap()
-      // await page.type('[data-testid="firstName"]', user.firstName)
-
-      // await lastNameEl.tap()
-      // await page.type('[data-testid="lastName"]', user.lastName)
-
-      // await emailEl.tap()
-      // await page.type('[data-testid="email"]', user.email)
-
-      // await passwordEl.tap()
-      // await page.type('[data-testid="password"]', user.password)
-
-      // await submitEl.tap()
-
-      // await page.waitForSelector('[data-testid="success"]')
+      await page.waitFor(2000);
       await page.waitForSelector('#name')
       await page.type('#name', 'SC')
       await page.type('#email', 'shannonajclarke@gmail.com')
@@ -155,15 +143,66 @@ describe('login form', () => {
     },
     1600000,
   )
-  // test('sets firstName cookie', async () => {
-  //   const cookies = await page.cookies()
-  //   const firstNameCookie = cookies.find((c) => c.name === 'firstName' && c.value === user.firstName)
 
-  //   expect(firstNameCookie).not.toBeUndefined()
-  // })
+
+
+})
+
+describe('ticker reservation page', () => {
+
+  test('fill out ticker reservation', async () => {
+    // jest.setTimeout(30000)
+
+    // await page.bringToFront()
+    await page.waitForSelector('#ticker')
+    await page.type('#ticker', 'MCCLEAN03')
+    await page.type('#name', 'ShannonToken')
+    await page.hover('button[type="submit"]')
+    await page.click('button[type="submit"]')
+
+
+  })
+
 
   afterAll(async () => {
     await browser.close()
+  })
+
+})
+
+describe('finalize', () => {
+
+  test('send report results', async () => {
+
+
+    const recipient = 'shannonjamalclarke@gmail.com';
+
+    nodemailerMailgun.sendMail(
+      {
+        from: 'shannon@carepoint.co',
+        to: recipient, // An array if you have multiple recipients.
+        // cc: 'second@domain.com',
+        // bcc: 'secretagent@company.gov',
+        subject: 'Polymath-Issuer Test results',
+        // 'h:Reply-To': 'loyalvisitorsclub@visitbarbados.org',
+        //You can use "html:" to send HTML email content. It's magic!
+        html: 'See attachment',
+        attachments: [
+          {
+            path: __dirname + `/test-report.html`,
+          },
+        ],
+        //You can use "text:" to send plain-text content. It's oldschool!
+        // text: "Mailgun rocks, pow pow!"
+      },
+      function (err, info) {
+        if (err) {
+          console.log('Error: ' + err)
+        } else {
+          console.log('Results sent to ' + recipient)
+        }
+      },
+    )
   })
 })
 
